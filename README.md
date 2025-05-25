@@ -3,7 +3,6 @@
 
 
 
-qtwp osrn safc iykk
 
 Consideration for Scaling: 
 
