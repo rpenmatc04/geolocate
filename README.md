@@ -1,17 +1,13 @@
-# Geolocate the phlebotomists
+# Geolocate
 
-
-
-
-
-Consideration for Scaling: 
+##Consideration for Scaling: 
 
 If the number of clinicians it can be improved via Threading and Asynchronous Operations 
 
 1. Threading: Spawn Multiple Threads so that each thread corresponds to a set or an individual phlebotomists and can implement different monitor intervals based on status
 2. Async: Print Statements can be done via async to not block until they finish as this will be a bottleneck if we have 100-1000 
 
-Appendix 
+##Appendix 
 
 Justification for Monitoring Interval Length: 
 
