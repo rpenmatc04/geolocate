@@ -4,7 +4,7 @@ import time
 import requests
 from config import DURATION, PHLEBOTOMISTS, SENDER, RECEPIENT, PASSWORD, REDIS_USED, REDIS_URL, ALERTS_USED, INTERVAL
 from api import poll_status, extract_information
-from calculations import covers, cover_information, generate_structures
+from calculations import covers, cover_information, generate_structures, calculate_level
 from sender import Sender
 from database import Database
 
@@ -67,7 +67,7 @@ def monitor_simple_loop():
             decision, distance, closest_point = cover_information(point, polygon) # (IN / OUT, distance in miles, closest point) - (IN, 0.0, current_point) when inside
 
             if ALERTS_USED: # Uses the distance to send the most up-to-date warning (Low -> High)
-                different_level = (decision == "OUT" and Sender.calculate_level(distance) != Sender.calculate_level(distances[id])) # Can use this for more informative email responses
+                different_level = (decision == "OUT" and calculate_level(distance) != calculate_level(distances[id])) # Can use this for more informative email responses
             else: 
                 different_level = False
             
