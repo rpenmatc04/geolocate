@@ -1,4 +1,5 @@
 # Geolocate the phlebotomists
+
 Image_Diagram 
 
 ### Steps to Rerun
@@ -11,38 +12,21 @@ cd geolocate
 # Step 2: Set up your environment
 pip install -r requirements.txt
 
-# Step 3: Configure environment variables
-# Fill in the .env file with the appropriate values
+# Step 3: Configure
+# Fill in the .env file with the appropriate values (see env.example)
 
 # Step 4: Run the script
 python3 main.py
-```
+``` 
 
-Summary: 
+Consideration for Scaling: 
 
-Features: 
+If the number of clinicians it can be improved via Threading and Asynchronous Operations 
 
-Email Content: 
-    - Option to differentiate Alerts depending on distance from nearest boundary
-    - Includes current location and (lattitude, longitude), as well as nearest distance to the boundary
-    - Phlebotomists that return back to the boundary contain the approximated duration spent outside of the boundary 
-    - Option for Failed API requests include most recent stored status in the redis cache
+1. Threading: Spawn Multiple Threads so that each thread corresponds to a set or an individual phlebotomists and can implement different monitor intervals based on status
+2. Async: Print Statements can be done via async to not block until they finish as this will be a bottleneck if we have 100-1000 
 
-Logging: Maintain a Log for better management, recovery, and debugging 
-
-Considerations made due to possible Scaling: If the number of clinicians increases to 100 - 1000
-
-1. Async: Print Statements are the bottleneck (see Findings) and can be done via async to not block until they finish as this will be a bottleneck if we have 100-1000 
-2. Database: Persistent Storage with Redis Cache for keeping most up-to-date information. Easy to switch to keeping track of all information. 
-3. ThreadPoolExecutor for API requests and sending Emails
-
-Potential Future Developments: 
-
-Lambda + Amazon SES for sending emails at scale rather than SMTP 
-Include a static map screenshot in email with directions rather than simple haversine formula distance
-Threading. Spawn Multiple Threads so that each thread corresponds to a set of phlebotomists or emails and implement different monitor intervals (exponential back-off) while utilizing multi-core parallelism
-
-Appendix 
+#Appendix 
 
 Justification for Monitoring Interval Length:
 
