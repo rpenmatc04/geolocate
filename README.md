@@ -19,12 +19,13 @@ python3 main.py
 
 ### Image and Summary
 
-###  Consideration for Scaling: 
 
-If the number of clinicians increase it can be improved via Threading and Asynchronous Operations 
+###  Scaling Considerations: 
 
-1. Threading: Spawn Multiple Threads to process API requests, handle generating emails, or focusing on a set of phlebotomists with different monitor intervals (exponential-backoff)
-2. Async: Print and API polling can be done via async to not block until they finish
+If the number of clinicians increase it can be improved via Threading and Asynchronous Operations:
+
+1. For threading, set the MULTI_THREADED flag to true. There will be NUM_THREAD worker threads that will run API get requests and send emails
+2. Async: Print and API polling can be done via async + await operations to not block the main thread until they finish.
 
 ### Appendix 
 
@@ -36,14 +37,8 @@ Through experimentation, I encountered a failure from the get request once in ~3
 
 ### Findings: 
 
-Without Async: 
-
 The average time for making a GET request for the Clinician is ~0.05 - 0.1 seconds. The average time for all geospatial calculations and decisions is ~0.001 seconds
 
 The average time for converting (lattitude, longitude) to address is 0.1-0.3 seconds [Optional]. The average time spent sending an email is ~1 second (sending an email is the bottleneck)
 
-The average best case scenario (no emails sent) for six clinicians ~0.4-0.5 seconds. The average worst case scenario (all emails sent) for six clinicians ~6 - 7 seconds
-
-With Async / Threading: 
-
-The average best case scenario (no emails sent) for six clinicians ~0.4-0.5 seconds. The average worst case scenario (all emails sent) for six clinicians ~[Tested] seconds
+The average best case scenario (no emails sent) for six clinicians ~0.4-0.5 seconds. The average worst case scenario (all emails sent) for seven clinicians is sub 7 seconds, which meets the current requirements.  

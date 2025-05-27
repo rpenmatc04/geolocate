@@ -1,15 +1,19 @@
 import smtplib
+import threading
 
 from email.mime.text import MIMEText
 class EmailSender: 
     """
     Class to set up a SMTP server to constantly send messages from a sender
     """
-    def __init__(self, sender, password, recepient="", port=587):
+    def __init__(self, sender, password, multithreaded=False, recepient="", port=587):
         self.sender = sender 
         self.recepient = recepient
         self.port = port  
         self.password = password 
+        self.multithreaded = multithreaded 
+        if self.multithreaded: 
+            self.lock = threading.Lock()
 
         self.mailserver = smtplib.SMTP("smtp.gmail.com",self.port)
         self.mailserver.starttls()
@@ -27,4 +31,19 @@ class EmailSender:
         message["To"] = self.recepient
         message["Subject"] = subject
         
-        self.mailserver.send_message(message)
+        if self.multithreaded:
+            """
+            SMTP currently does not offer true multithreading without creating new connections (which take time)
+
+            with smtplib.SMTP("smtp.gmail.com", self.port) as temp_mailserver:
+                temp_mailserver.starttls()
+                temp_mailserver.login(self.sender, self.password)
+                temp_mailserver.send_message(message)
+
+            """
+
+            with self.lock:
+                self.mailserver.send_message(message)
+
+        else: 
+            self.mailserver.send_message(message)

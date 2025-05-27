@@ -16,3 +16,5 @@ RECEPIENT = os.getenv("RECEPIENT")
 REDIS_USED = os.getenv("REDIS_BOOL", "false").lower() == "true"
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 ALERTS_USED = os.getenv("ALERT_USED", "false").lower() == "true"
+MULTI_THREADED = os.getenv("MULTI_THREADED", "false").lower() == "true"
+NUM_THREADS = int(os.getenv("NUM_THREADS", 5))
