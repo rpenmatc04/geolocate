@@ -26,9 +26,21 @@ This code deals with keeping track of multiple clinicians' current status and se
 If the number of clinicians massively increase or the calculations become more complex it can be improved via Threading and Asynchronous Operations:
 
 1. For threading, set the MULTI_THREADED flag to true. There will be NUM_THREAD worker threads that will run API get requests and send emails.
-2. Async: Print and API polling can be done via async + await operations to not block the threads while waiting for response or sending emails.
+2. Async: Print and API polling can be done via async + await operations to not block the thread while waiting for response or sending emails.
 
-Note: While I have implemented threading and functions/classes for async polling and sending emails, the current code does not utilize these features due to the scale (6 endpoints).  
+Note: While I have implemented threading and functions/classes for async polling and sending emails, the current code does not utilize these features due to the small scale leading to no major improvements (6 endpoints).  
+
+### Findings: 
+
+The average time for making a GET request for the Clinician is 50-100ms. The average time for all geospatial calculations and decisions is 1 ms
+
+The average time for converting (lattitude, longitude) to address is 100-300ms [Optional]. The average time spent sending an email is ~1000ms (sending an email is the bottleneck)
+
+The average best case scenario (no emails sent) for six clinicians ~400-500ms. The average worst case scenario for seven clinicians is ~6000-7000ms, which easily meets current requirements.  
+
+With Threading (3): 
+
+The average best case scenario (no emails sent) for six clinicians ~200ms. The average worst case scenario for seven clinicians is ~3000ms, which easily meets current requirements.  
 
 ### Appendix 
 
@@ -36,12 +48,6 @@ Justification for Monitoring Interval Length (assuming endpoint is valid):
 
 2-minute monitor interval implies an expected warning within 1 minute.
 
-Through experimentation, I encountered a failure from the get request once in ~300 iterations. For the sake of generalization, let's assume that the error from the API occurs about once every 100-1000 times. We know that there are 525600 (60 min / hour * 24 hour / day * 365 day / year) minutes in a year, and assuming that these vans run for 12 hours a day we have 525600 * 1/5 * 1/2  = 52560 5-minute intervals. Considering the failure rate as 1/100 or 1/1000 if we run once every five minutes we have between ~50-500 intervals resulting in non-responses. Thus, the monitor interval rate should be lower and with a monitor interval rate of 2 minutes the expected amount of wait for the first poll is a minute later and we have another one guaranteed before the five-minute restriction ends (since processing for all is sub 10 seconds). Thus, we now have a failure rate as (1/100)^2 or (1/1000)^2 assuming independent reduces the number of failures to between ~0-5. Finally, this is a good choice because it does not overload the API too much. 
+Through experimentation, I encountered a failure from the get request once in ~300 iterations. For the sake of generalization, let's assume that the error from the API occurs about once every 100-1000 times. We know that there are 525600 (60 min / hour * 24 hour / day * 365 day / year) minutes in a year, and assuming that these vans run for 12 hours a day we have 525600 * 1/5 * 1/2  = 52560 5-minute intervals. Considering the failure rate as 1/100 or 1/1000 if we run once every five minutes we have between ~50-500 intervals resulting in non-responses. Thus, the monitor interval rate should be lower and with a monitor interval rate of 2 minutes the expected amount of wait for the first poll is a minute later and we have another one guaranteed before the five-minute restriction ends (since processing for all is sub 10 seconds). Thus, we now have a failure rate as (1/100)^2 or (1/1000)^2 assuming independent reduces the number of failures to between ~0-5. 
 
-### Findings: 
-
-The average time for making a GET request for the Clinician is ~0.05 - 0.1 seconds. The average time for all geospatial calculations and decisions is ~0.001 seconds
-
-The average time for converting (lattitude, longitude) to address is 0.1-0.3 seconds [Optional]. The average time spent sending an email is ~1 second (sending an email is the bottleneck)
-
-The average best case scenario (no emails sent) for six clinicians ~0.4-0.5 seconds. The average worst case scenario for seven clinicians is ~6-7 seconds, which easily meets current requirements.  
+This assumes that the errors are not persistent (that the endpoint is still valid)

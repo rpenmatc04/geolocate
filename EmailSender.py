@@ -32,18 +32,20 @@ class EmailSender:
         message["Subject"] = subject
         
         if self.multithreaded:
+            # SMTP currently does not offer true multithreading without creating new connections (which take time)
             """
-            SMTP currently does not offer true multithreading without creating new connections (which take time)
-
+            with self.lock:
+                self.mailserver.send_message(message)
+            """ 
             with smtplib.SMTP("smtp.gmail.com", self.port) as temp_mailserver:
                 temp_mailserver.starttls()
                 temp_mailserver.login(self.sender, self.password)
                 temp_mailserver.send_message(message)
-
-            """
-
-            with self.lock:
-                self.mailserver.send_message(message)
-
         else: 
-            self.mailserver.send_message(message)
+            try:
+                self.mailserver.send_message(message)
+            except smtplib.SMTPServerDisconnected:
+                self.mailserver = smtplib.SMTP("smtp.gmail.com", 587)
+                self.mailserver.starttls()
+                self.mailserver.login(self.sender, self.password)
+                self.mailserver.send_message(message)
