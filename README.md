@@ -9,6 +9,7 @@ cd geolocate
 
 # Step 2: Configure
 # Fill in the .env file with the appropriate values (see env.example)
+# Baseline Requirements - REDIS_BOOL=false, ALERT_USED=false, MULTI_THREADED=false
 
 # Step 3: Run the script
 python3 main.py
@@ -16,7 +17,7 @@ python3 main.py
 
 ### Summary
 
-This code deals with keeping track of multiple clinicians' current status and sending updates if they leave their corresponding boundary, when they return, and when the API fails. Additionally, this code can the send different levels of alerts depending on the distance (configurable), send the current human readabale location by reverse-location from their lattitude, longitude coordinates, and on failures display the most recent information (REDIS_BOOL set to true).
+This code deals with keeping track of multiple clinicians' current status and sending updates if they leave their corresponding boundary, when they return, and when the API fails. Additionally, this code can the send different levels of alerts depending on the distance (configurable), send the current human readabale location by reverse-location from their lattitude, longitude coordinates, and on failures display the most recent information (implemented via redis, must set REDIS_BOOL to be true for this feature).
 
 ### Scaling Considerations: 
 
