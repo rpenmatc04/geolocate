@@ -24,11 +24,12 @@ def monitor_simple_loop():
     
     sender = Sender(SENDER, RECEPIENT, PASSWORD, database)
 
+
     while time.time() < t_end:
 
-        print("Taking Track of Timestamps")
+        # print("Taking Track of Timestamps")
 
-        start_time = time.time()
+        # start_time = time.time()
         statuses = [] 
         times = [] 
 
@@ -37,20 +38,19 @@ def monitor_simple_loop():
             times.append(current_time) # Time of API request 
             statuses.append(poll_status(session, id)) # API result
 
-        temp_end_time = time.time()
-        print(f"API results took: {temp_end_time - start_time} seconds")
+        # temp_end_time = time.time()
+        # print(f"API results took: {temp_end_time - start_time} seconds")
+
 
         for itr, (id, status) in enumerate(zip(PHLEBOTOMISTS, statuses)):
             curr_time = times[itr]
             if (status == -1): # Alert due to exception raised during GET request
                 sender.generate_failure(id)
-                history[id] = "UNSAFE"
                 continue
 
             pointVals, polygonVals = extract_information(status)
             if pointVals == -1: # Alert due to exception raised with the JSON returned
                 sender.generate_failure(id)
-                history[id] = "UNSAFE"
                 continue 
             
             try: 
@@ -58,7 +58,6 @@ def monitor_simple_loop():
             except Exception as e:
                 logger.error(f"Failed to generate points or polygons for Clinician {id} data: {e}, {status}")
                 sender.generate_failure(id)# Alert due to issue with Data itsself
-                history[id] = "UNSAFE"
                 continue
                 
             
@@ -78,11 +77,7 @@ def monitor_simple_loop():
 
             if history[id] != decision or different_level: 
                 if decision == "IN":
-                    if history[id] == "UNSAFE":
-                        sender.generate_return(id, curr_time)
-                    else:
-                        sender.generate_return(id, curr_time, boundary_changes_times[id])
-
+                    sender.generate_return(id, curr_time, boundary_changes_times[id])
                     logger.debug(f"Client {id} has returned to their boundary")
                 else:
                     sender.generate_exit(id, point, closest_point, distance, curr_time)
@@ -92,8 +87,9 @@ def monitor_simple_loop():
                 boundary_changes_times[id] = curr_time
 
                 # Uncomment to Debug
-                status = str(status).replace("'", '"')
-                print(status)
+            status = str(status).replace("'", '"')
+            # print(status)
+            logging.debug(status)
             
             
             distances[id] = distance
@@ -102,10 +98,10 @@ def monitor_simple_loop():
             if database: 
                 database.update_recent(id, decision, curr_time, status)
 
-        end_time = time.time()
-        print(f"The calculations and email sending took: {end_time - temp_end_time} seconds")
-        total_time = end_time - start_time
-        print(f"The total time: {total_time} seconds")
+        # end_time = time.time()
+        # print(f"The calculations and email sending took: {end_time - temp_end_time} seconds")
+        # total_time = end_time - start_time
+        # print(f"The total time: {total_time} seconds")
 
         time.sleep(INTERVAL)
 
@@ -134,8 +130,8 @@ def multi_monitor_simple_loop():
 
     while time.time() < t_end:
 
-        print("Taking Track of Time")
-        start_time = time.time()
+        # print("Taking Track of Time")
+        # start_time = time.time()
         statuses = [] 
         times = [] 
 
@@ -147,8 +143,8 @@ def multi_monitor_simple_loop():
             statuses.append(api_result) # API result
             
 
-        temp_end_time = time.time()
-        print(f"API results took: {temp_end_time - start_time} seconds")
+        # temp_end_time = time.time()
+        # print(f"API results took: {temp_end_time - start_time} seconds")
 
         for itr, (id, status) in enumerate(zip(PHLEBOTOMISTS, statuses)):
             curr_time = times[itr]
@@ -184,7 +180,7 @@ def multi_monitor_simple_loop():
                 logger.error(f"floating point rounding error: {distance}")
 
             # Send an email if the Clinician changes their status (Out -> In, In -> Out, Unsafe State -> Either) or with a change in the alert status if levels are activated
-            if True or history[id] != decision or different_level: 
+            if history[id] != decision or different_level: 
                 if decision == "IN":
                     executor.submit(sender.generate_return, id, curr_time, boundary_changes_times[id])
                     logger.debug(f"Client {id} has returned to their boundary")
@@ -197,8 +193,8 @@ def multi_monitor_simple_loop():
                 boundary_changes_times[id] = curr_time
 
                 # Uncomment to Debug
-                status = str(status).replace("'", '"')
-                print(status)
+                # status = str(status).replace("'", '"')
+                # print(status)
             
             
             distances[id] = distance
@@ -207,10 +203,10 @@ def multi_monitor_simple_loop():
             if database: 
                 database.update_recent(id, decision, curr_time, status)
 
-        end_time = time.time()
-        print(f"Calculation took: {end_time - temp_end_time}")
-        total_time = end_time - start_time
-        print(f"Total Time: {total_time}")
+        # end_time = time.time()
+        # print(f"Calculation took: {end_time - temp_end_time}")
+        # total_time = end_time - start_time
+        # print(f"Total Time: {total_time}")
         time.sleep(120)
 
     sender.mailserver.quit()

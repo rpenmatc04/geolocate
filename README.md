@@ -7,19 +7,16 @@
 git clone https://github.com/rpenmatc04/geolocate.git
 cd geolocate
 
-# Step 2: Set up your environment
-pip install -r requirements.txt
-
-# Step 3: Configure
+# Step 2: Configure
 # Fill in the .env file with the appropriate values (see env.example)
 
-# Step 4: Run the script
+# Step 3: Run the script
 python3 main.py
 ``` 
 
 ### Summary
 
-This code deals with keeping track of multiple clinicians' current status and sending updates if they leave their corresponding boundary, when they return, and when the API fails. Additionally, this code can the send different levels of alerts depending on the distance (configurable), send the current human readabale location by reverse-location from their lattitude, longitude coordinates, and on failures display the most recent information. 
+This code deals with keeping track of multiple clinicians' current status and sending updates if they leave their corresponding boundary, when they return, and when the API fails. Additionally, this code can the send different levels of alerts depending on the distance (configurable), send the current human readabale location by reverse-location from their lattitude, longitude coordinates, and on failures display the most recent information (REDIS_BOOL set to true).
 
 ### Scaling Considerations: 
 
@@ -28,7 +25,7 @@ If the number of clinicians massively increase or the calculations become more c
 1. For threading, set the MULTI_THREADED flag to true. There will be NUM_THREAD worker threads that will run API get requests and send emails.
 2. Async: Print and API polling can be done via async + await operations to not block the thread while waiting for response or sending emails.
 
-Note: While I have implemented threading and functions/classes for async polling and sending emails, the current code does not utilize these features due to the small scale leading to no major improvements (6 endpoints).  
+Note: While I have implemented threading and functions/classes for async polling and sending emails, the current code does not utilize these features due to the small scale (6 endpoints).  
 
 ### Findings: 
 

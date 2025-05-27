@@ -15,15 +15,19 @@ class EmailSender:
         if self.multithreaded: 
             self.lock = threading.Lock()
 
-        self.mailserver = smtplib.SMTP("smtp.gmail.com",self.port)
-        self.mailserver.starttls()
-        self.mailserver.login(self.sender, self.password)
+        self.mailserver = self.connect()
 
     def change_recepient(self, recepient):
         self.recepient = recepient 
 
     def quit(self): 
         self.mailserver.quit()
+
+    def connect(self):
+        server = smtplib.SMTP("smtp.gmail.com", self.port, timeout=10)
+        server.starttls()
+        server.login(self.sender, self.password)
+        return server
 
     def send_synch_message(self, subject, body):
         message = MIMEText(body)
@@ -44,8 +48,10 @@ class EmailSender:
         else: 
             try:
                 self.mailserver.send_message(message)
-            except smtplib.SMTPServerDisconnected:
-                self.mailserver = smtplib.SMTP("smtp.gmail.com", 587)
-                self.mailserver.starttls()
-                self.mailserver.login(self.sender, self.password)
+            except (smtplib.SMTPServerDisconnected, smtplib.SMTPException, OSError) as e:
+                self.reconnect()
                 self.mailserver.send_message(message)
+
+    def reconnect(self):
+        self.mailserver.quit()
+        self.mailserver = self.connect()

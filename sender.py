@@ -12,7 +12,7 @@ app = Nominatim(user_agent="find_location")
 
 class Sender: 
 
-    def __init__(self, sender, recepient, password, db, multithreaded=False): 
+    def __init__(self, sender, recepient, password, db, multithreaded=False):
         self.mailserver = EmailSender(sender, password, multithreaded, recepient)
         self.db = db
 
@@ -25,11 +25,11 @@ class Sender:
         body = ""
         if not self.db: 
             return body
-        key = f"Client{id}"
-        value = self.db.get_recent(key)
-        if value: 
+        value = self.db.get_recent(id)
+        if value:
             time_str, date = Sender.generate_time_fields(float(value['time_stamp']))
             body = f"The most recent information for Client {id} is that they were {value['decision']} the boundary on {date} at {time_str} with the GeoJSON data listed below: \n {value['geojson']}"
+            body = body.replace('\\', '')
         return body
     
     def generate_failure(self, id):
@@ -70,9 +70,8 @@ class Sender:
         self.generate_email(subject, body)
 
     def generate_email(self, subject, body):
-        # Single-Threaded
         try:
-            logger.debug("trying to send email") 
+            logger.debug("trying to send email")
             self.mailserver.send_synch_message(subject, body)
             logger.debug(f"sent email successfully")
         except Exception as e:
