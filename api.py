@@ -1,6 +1,6 @@
 from config import API_URL
 import time
-
+import aiohttp
 import logging 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ def poll_status(session, id):
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        logger.error(f"API failed to respond correctly for Clinician {id}: {e}")
+        logger.error(f"API failed to respond correctly for Clinician {id}: {e}, {response}")
         return -1 
 
 # Threading Example
@@ -46,6 +46,7 @@ def extract_information(status):
     return point, polygon
 
 # Async Polling
+# Session: aiohttp
 async def async_poll(session, id): 
     url = f"{API_URL}/{id}"
     try: 

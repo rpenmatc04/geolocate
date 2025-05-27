@@ -17,15 +17,18 @@ pip install -r requirements.txt
 python3 main.py
 ``` 
 
-### Image and Summary
+### Summary
 
+This code deals with keeping track of multiple clinicians' current status and sending updates if they leave their corresponding boundary, when they return, and when the API fails. Additionally, this code can the send different levels of alerts depending on the distance (configurable), send the current human readabale location by reverse-location from their lattitude, longitude coordinates, and on failures display the most recent information. 
 
-###  Scaling Considerations: 
+### Scaling Considerations: 
 
-If the number of clinicians increase it can be improved via Threading and Asynchronous Operations:
+If the number of clinicians massively increase or the calculations become more complex it can be improved via Threading and Asynchronous Operations:
 
-1. For threading, set the MULTI_THREADED flag to true. There will be NUM_THREAD worker threads that will run API get requests and send emails
-2. Async: Print and API polling can be done via async + await operations to not block the main thread until they finish.
+1. For threading, set the MULTI_THREADED flag to true. There will be NUM_THREAD worker threads that will run API get requests and send emails.
+2. Async: Print and API polling can be done via async + await operations to not block the threads while waiting for response or sending emails.
+
+Note: While I have implemented threading and functions/classes for async polling and sending emails, the current code does not utilize these features due to the scale (6 endpoints).  
 
 ### Appendix 
 
@@ -41,4 +44,4 @@ The average time for making a GET request for the Clinician is ~0.05 - 0.1 secon
 
 The average time for converting (lattitude, longitude) to address is 0.1-0.3 seconds [Optional]. The average time spent sending an email is ~1 second (sending an email is the bottleneck)
 
-The average best case scenario (no emails sent) for six clinicians ~0.4-0.5 seconds. The average worst case scenario (all emails sent) for seven clinicians is sub 7 seconds, which meets the current requirements.  
+The average best case scenario (no emails sent) for six clinicians ~0.4-0.5 seconds. The average worst case scenario for seven clinicians is ~6-7 seconds, which easily meets current requirements.  

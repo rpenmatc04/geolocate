@@ -56,7 +56,7 @@ def monitor_simple_loop():
             try: 
                 polygon, point = generate_structures(pointVals, polygonVals)
             except Exception as e:
-                logger.error(f"Failed to generate points or polygons for Clinician {id} data: {e}")
+                logger.error(f"Failed to generate points or polygons for Clinician {id} data: {e}, {status}")
                 sender.generate_failure(id)# Alert due to issue with Data itsself
                 history[id] = "UNSAFE"
                 continue
@@ -105,7 +105,7 @@ def monitor_simple_loop():
         end_time = time.time()
         print(f"The calculations and email sending took: {end_time - temp_end_time} seconds")
         total_time = end_time - start_time
-        print("The total time: {total_time}")
+        print(f"The total time: {total_time} seconds")
 
         time.sleep(INTERVAL)
 
@@ -220,7 +220,7 @@ def multi_monitor_simple_loop():
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     logging.basicConfig(filename='monitor.log', encoding='utf-8', level=logging.DEBUG)
-    logger.info('STARTING_MAIN_TEST_LONG_OUTPUT')
+    logger.info('STARTING_MAIN_1_HOUR')
 
     if MULTI_THREADED: 
         multi_monitor_simple_loop()
